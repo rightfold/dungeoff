@@ -1,0 +1,6 @@
+{
+  "name": "dungeoff",
+  "dependencies": {
+    "discord.js": "^11.1.0"
+  }
+}
