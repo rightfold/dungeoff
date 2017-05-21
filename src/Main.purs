@@ -3,6 +3,7 @@ module Main
   ) where
 
 import Chat.Discord as D
+import Data.String as String
 import Node.Process (lookupEnv)
 import Stuff
 
@@ -17,8 +18,13 @@ main = launchIO do
   channels <- D.clientChannels client
   traceAnyA channels
 
-  D.clientOnMessage client \message -> do
-    content <- D.messageContent message
-    traceAnyA content
+  D.clientOnMessage client \message -> runIOSync' \ launchIO $ do
+    author <- D.messageAuthor message
+    bot <- D.userBot author
+    when (not bot) do
+      content <- D.messageContent message
+      traceAnyA content
+
+      D.messageReply message (String.toUpper content)
 
   pure unit

@@ -37,6 +37,39 @@ exports.ffiClientOnMessage = function(client) {
   };
 };
 
+exports.ffiUserBot = function(user) {
+  return function() {
+    return user.bot;
+  };
+};
+
+exports.ffiMessageContent = function(message) {
+  return function() {
+    return message.content;
+  };
+};
+
+exports.ffiMessageReply = function(message) {
+  return function(content) {
+    return function(onError) {
+      return function(onSuccess) {
+        return function() {
+          message.reply(content).then(
+            function() { onSuccess() },
+            function(err) { onError(err) }
+          );
+        };
+      };
+    };
+  };
+};
+
+exports.ffiMessageAuthor = function(message) {
+  return function() {
+    return message.author;
+  };
+};
+
 exports.ffiCollectionGet = function(nothing) {
   return function(just) {
     return function(collection) {
@@ -47,11 +80,5 @@ exports.ffiCollectionGet = function(nothing) {
         };
       };
     };
-  };
-};
-
-exports.ffiMessageContent = function(message) {
-  return function() {
-    return message.content;
   };
 };

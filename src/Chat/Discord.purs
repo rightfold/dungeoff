@@ -11,8 +11,13 @@ module Chat.Discord
 
   , Channel
 
+  , User
+  , userBot
+
   , Message
   , messageContent
+  , messageAuthor
+  , messageReply
 
   , Collection
   , collectionGet
@@ -73,6 +78,16 @@ foreign import data Channel :: Type
 
 --------------------------------------------------------------------------------
 
+foreign import data User :: Type
+
+userBot :: ∀ eff f. MonadEff (discord :: DISCORD | eff) f => User -> f Boolean
+userBot = liftEff <<< ffiUserBot
+
+foreign import ffiUserBot :: ∀ eff. User ->
+  Eff (discord :: DISCORD | eff) Boolean
+
+--------------------------------------------------------------------------------
+
 foreign import data Message :: Type
 
 messageContent :: ∀ eff f. MonadEff (discord :: DISCORD | eff) f => Message ->
@@ -81,6 +96,22 @@ messageContent = liftEff <<< ffiMessageContent
 
 foreign import ffiMessageContent :: ∀ eff. Message ->
   Eff (discord :: DISCORD | eff) String
+
+messageAuthor :: ∀ eff f. MonadEff (discord :: DISCORD | eff) f => Message ->
+  f User
+messageAuthor = liftEff <<< ffiMessageAuthor
+
+foreign import ffiMessageAuthor :: ∀ eff. Message ->
+  Eff (discord :: DISCORD | eff) User
+
+messageReply :: ∀ eff f. MonadAff (discord :: DISCORD | eff) f => Message ->
+  String -> f Unit
+messageReply = ((liftAff <<< makeAff) <<< _) <<< ffiMessageReply
+
+foreign import ffiMessageReply :: ∀ eff. Message -> String ->
+  (Error -> Eff (discord :: DISCORD | eff) Unit) ->
+  (Unit -> Eff (discord :: DISCORD | eff) Unit) ->
+  Eff (discord :: DISCORD | eff) Unit
 
 --------------------------------------------------------------------------------
 
