@@ -2,19 +2,23 @@ module Main
   ( main
   ) where
 
-import Chat.Discord (clientChannels, clientLogin, newClient)
+import Chat.Discord as D
 import Node.Process (lookupEnv)
 import Stuff
 
 main :: IOSync Unit
 main = launchIO do
-  client <- newClient
+  client <- D.newClient
 
   token <- liftEff $ fromMaybe "" <$> lookupEnv "DUNGEOFF_DISCORD_TOKEN"
-  actualToken <- clientLogin client token
+  actualToken <- D.clientLogin client token
   traceAnyA actualToken
 
-  channels <- clientChannels client
+  channels <- D.clientChannels client
   traceAnyA channels
+
+  D.clientOnMessage client \message -> do
+    content <- D.messageContent message
+    traceAnyA content
 
   pure unit

@@ -27,6 +27,16 @@ exports.ffiClientChannels = function(client) {
   };
 };
 
+exports.ffiClientOnMessage = function(client) {
+  return function(callback) {
+    return function() {
+      client.on('message', function(message) {
+        callback(message)();
+      });
+    };
+  };
+};
+
 exports.ffiCollectionGet = function(nothing) {
   return function(just) {
     return function(collection) {
@@ -37,5 +47,11 @@ exports.ffiCollectionGet = function(nothing) {
         };
       };
     };
+  };
+};
+
+exports.ffiMessageContent = function(message) {
+  return function() {
+    return message.content;
   };
 };

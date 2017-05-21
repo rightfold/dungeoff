@@ -7,8 +7,12 @@ module Chat.Discord
   , newClient
   , clientLogin
   , clientChannels
+  , clientOnMessage
 
   , Channel
+
+  , Message
+  , messageContent
 
   , Collection
   , collectionGet
@@ -55,9 +59,28 @@ clientChannels = liftEff <<< ffiClientChannels
 foreign import ffiClientChannels :: ∀ eff. Client ->
   Eff (discord :: DISCORD | eff) (Collection Snowflake Channel)
 
+clientOnMessage :: ∀ eff f. MonadEff (discord :: DISCORD | eff) f => Client ->
+  (Message -> Eff (discord :: DISCORD | eff) Unit) -> f Unit
+clientOnMessage = (liftEff <<< _) <<< ffiClientOnMessage
+
+foreign import ffiClientOnMessage :: ∀ eff. Client ->
+  (Message -> Eff (discord :: DISCORD | eff) Unit) ->
+  Eff (discord :: DISCORD | eff) Unit
+
 --------------------------------------------------------------------------------
 
 foreign import data Channel :: Type
+
+--------------------------------------------------------------------------------
+
+foreign import data Message :: Type
+
+messageContent :: ∀ eff f. MonadEff (discord :: DISCORD | eff) f => Message ->
+  f String
+messageContent = liftEff <<< ffiMessageContent
+
+foreign import ffiMessageContent :: ∀ eff. Message ->
+  Eff (discord :: DISCORD | eff) String
 
 --------------------------------------------------------------------------------
 
